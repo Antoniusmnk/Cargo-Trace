@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\ApiAuthController;
+use App\Http\Controllers\Api\CarrierApiController;
+use App\Http\Controllers\Api\LocationApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,4 +24,12 @@ Route::post('/login', [ApiAuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [ApiAuthController::class, 'logout']);
     Route::get('/user', [ApiAuthController::class, 'user']);
+
+    // Master Data: Carriers
+    Route::get('/carriers', [CarrierApiController::class, 'index']);
+    Route::post('/carriers', [CarrierApiController::class, 'store']);
+
+    // Master Data: Locations
+    Route::get('/locations', [LocationApiController::class, 'index']);
+    Route::post('/locations', [LocationApiController::class, 'store']);
 });

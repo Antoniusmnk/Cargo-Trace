@@ -67,6 +67,15 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
                         Admin Area
                     </span>
+
+                    <div class="hidden lg:flex items-center gap-2 ml-2 text-xs font-semibold">
+                        <a href="{{ route('admin.carriers') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                            Master Carriers
+                        </a>
+                        <a href="{{ route('admin.locations') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                            Master Locations
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Navigation links & User actions -->
@@ -159,8 +168,13 @@
                 <p class="mt-2 text-xs text-slate-400 leading-relaxed">
                     Data master perusahaan pelayaran (Maersk, MSC, Evergreen) serta koordinat pelabuhan asal dan tujuan (Milestone P9).
                 </p>
-                <div class="mt-4 pt-4 border-t border-slate-800 text-xs text-slate-500 font-medium">
-                    Persiapan Migrasi Entitas P9
+                <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                    <a href="{{ route('admin.carriers') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">
+                        Kelola Carriers &rarr;
+                    </a>
+                    <a href="{{ route('admin.locations') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">
+                        Kelola Locations &rarr;
+                    </a>
                 </div>
             </div>
 

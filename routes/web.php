@@ -48,6 +48,18 @@ Route::prefix('admin')
         Route::get('/dashboard', function () {
             return view('dashboard.admin');
         })->name('dashboard');
+
+        Route::get('/carriers', function () {
+            return view('dashboard.carriers', [
+                'carriers' => \App\Models\Carrier::orderBy('name')->get(),
+            ]);
+        })->name('carriers');
+
+        Route::get('/locations', function () {
+            return view('dashboard.locations', [
+                'locations' => \App\Models\Location::orderBy('name')->get(),
+            ]);
+        })->name('locations');
     });
 
 // Operator Route Group (Admin is also permitted)
@@ -58,6 +70,18 @@ Route::prefix('operator')
         Route::get('/dashboard', function () {
             return view('dashboard.operator');
         })->name('dashboard');
+
+        Route::get('/carriers', function () {
+            return view('dashboard.carriers', [
+                'carriers' => \App\Models\Carrier::orderBy('name')->get(),
+            ]);
+        })->name('carriers');
+
+        Route::get('/locations', function () {
+            return view('dashboard.locations', [
+                'locations' => \App\Models\Location::orderBy('name')->get(),
+            ]);
+        })->name('locations');
     });
 
 // Customer Route Group

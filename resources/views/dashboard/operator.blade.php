@@ -67,6 +67,15 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
                         Operator Area
                     </span>
+
+                    <div class="hidden lg:flex items-center gap-2 ml-2 text-xs font-semibold">
+                        <a href="{{ route('operator.carriers') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                            Master Carriers
+                        </a>
+                        <a href="{{ route('operator.locations') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                            Master Locations
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Navigation & User actions -->
