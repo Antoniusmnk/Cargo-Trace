@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth\ApiAuthController;
 use App\Http\Controllers\Api\CarrierApiController;
 use App\Http\Controllers\Api\LocationApiController;
 use App\Http\Controllers\Api\ShipmentApiController;
+use App\Http\Controllers\Api\TrackingApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,4 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/shipments/{id}', [ShipmentApiController::class, 'update']);
     Route::patch('/shipments/{id}', [ShipmentApiController::class, 'update']);
     Route::delete('/shipments/{id}', [ShipmentApiController::class, 'destroy']);
+
+    // Tracking & Milestone Events
+    Route::get('/shipments/{shipment}/tracking', [TrackingApiController::class, 'index'])->name('api.shipments.tracking.index');
+    Route::post('/shipments/{shipment}/tracking', [TrackingApiController::class, 'store'])->name('api.shipments.tracking.store');
 });

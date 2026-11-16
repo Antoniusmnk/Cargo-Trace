@@ -392,6 +392,103 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "04. Tracking & Lifecycle",
+			"description": "Endpoints for Cargo Tracking Timeline and Checkpoint Lifecycle State Machine.",
+			"item": [
+				{
+					"name": "Get Shipment Tracking Timeline",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/tracking",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "tracking"]
+						},
+						"description": "Retrieves the full chronological milestone events history for a shipment."
+					}
+				},
+				{
+					"name": "Add Valid Tracking Checkpoint (Operator)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"BOOKED\",\n    \"event_time\": \"2026-11-17 14:00:00\",\n    \"location_id\": 1,\n    \"location_name\": \"Tanjung Priok Container Terminal, Jakarta\",\n    \"latitude\": -6.1018800,\n    \"longitude\": 106.8833800,\n    \"description\": \"Slot booking confirmed by carrier for export voyage.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/tracking",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "tracking"]
+						},
+						"description": "Records the next valid lifecycle checkpoint in accordance with the state machine rules."
+					}
+				},
+				{
+					"name": "Reject Invalid Status Transition (Negative Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422 Unprocessable Content\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"pm.test(\"Error message indicates invalid transition\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.message).to.include(\"tidak valid\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"DELIVERED\",\n    \"event_time\": \"2026-11-17 15:00:00\",\n    \"location_name\": \"Discharge Port Yard\",\n    \"description\": \"Attempting invalid jump from CREATED directly to DELIVERED.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/tracking",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "tracking"]
+						},
+						"description": "Tests state machine validation by attempting an invalid status jump (e.g. CREATED -> DELIVERED)."
+					}
+				}
+			]
 		}
 	]
 }

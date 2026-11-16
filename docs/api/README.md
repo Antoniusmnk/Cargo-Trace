@@ -84,6 +84,13 @@ Semua akun pengujian berikut terdaftar secara bawaan di database lokal melalui s
 - `per_page`: Jumlah data per halaman (default: `10`).
 - `page`: Nomor halaman aktif (default: `1`).
 
+### 4.4 Modul Tracking Events & State Machine (Milestone P10)
+
+| Method | Endpoint | Proteksi (*Auth*) | Izin Akses (*Policy*) | Deskripsi |
+| :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/api/shipments/{shipment}/tracking` | `Bearer Token` | Owner, `operator`, `admin` | Mengambil seluruh linimasa riwayat status dan checkpoint kargo |
+| `POST` | `/api/shipments/{shipment}/tracking` | `Bearer Token` | `operator`, `admin` (Customer ditolak) | Mencatat checkpoint baru & memperbarui status shipment sesuai State Machine |
+
 ---
 
 ## 5. Standar Format Respon JSON
