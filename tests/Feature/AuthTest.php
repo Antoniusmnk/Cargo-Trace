@@ -129,11 +129,11 @@ class AuthTest extends TestCase
             'name' => 'Admin Utama',
         ]);
 
-        $response = $this->actingAs($admin)->get('/dashboard');
+        $response = $this->actingAs($admin)->get('/admin/dashboard');
 
         $response->assertStatus(200);
         $response->assertSee('Admin Utama');
-        $response->assertSee('admin');
+        $response->assertSee('ADMINISTRATOR UTAMA');
     }
 
     public function test_authenticated_users_are_redirected_from_login_screen(): void

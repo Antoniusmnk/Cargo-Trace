@@ -25,10 +25,47 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-// Authenticated Routes
+// Authenticated Session & Smart Dashboard Redirection
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $role = auth()->user()->role;
+
+        return match ($role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'operator' => redirect()->route('operator.dashboard'),
+            default => redirect()->route('customer.dashboard'),
+        };
     })->name('dashboard');
 });
+
+// Admin Route Group
+Route::prefix('admin')
+    ->as('admin.')
+    ->middleware(['auth', 'role:admin'])
+    ->group(function () {
+        Route::get('/dashboard', function () {
+            return view('dashboard.admin');
+        })->name('dashboard');
+    });
+
+// Operator Route Group (Admin is also permitted)
+Route::prefix('operator')
+    ->as('operator.')
+    ->middleware(['auth', 'role:operator,admin'])
+    ->group(function () {
+        Route::get('/dashboard', function () {
+            return view('dashboard.operator');
+        })->name('dashboard');
+    });
+
+// Customer Route Group
+Route::prefix('customer')
+    ->as('customer.')
+    ->middleware(['auth', 'role:customer'])
+    ->group(function () {
+        Route::get('/dashboard', function () {
+            return view('dashboard.customer');
+        })->name('dashboard');
+    });
