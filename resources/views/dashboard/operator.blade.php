@@ -69,6 +69,9 @@
                     </span>
 
                     <div class="hidden lg:flex items-center gap-2 ml-2 text-xs font-semibold">
+                        <a href="{{ route('operator.shipments') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                            Data Shipments
+                        </a>
                         <a href="{{ route('operator.carriers') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
                             Master Carriers
                         </a>
@@ -148,8 +151,11 @@
                 <p class="mt-2 text-xs text-slate-400 leading-relaxed">
                     Pengendalian alur status baku: <span class="font-mono text-cyan-300">CREATED &rarr; BOOKED &rarr; PICKED_UP &rarr; IN_TRANSIT &rarr; DELIVERED</span>.
                 </p>
-                <div class="mt-4 pt-4 border-t border-slate-800 text-xs text-cyan-300 font-medium">
-                    State Machine Validation Baseline (P9)
+                <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                    <span class="text-cyan-300 font-medium">CRUD & State Machine Active</span>
+                    <a href="{{ route('operator.shipments') }}" class="text-cyan-400 hover:text-cyan-300 font-semibold transition">
+                        Kelola Shipments &rarr;
+                    </a>
                 </div>
             </div>
 
@@ -199,11 +205,21 @@
                 </span>
             </div>
             
-            <div class="mt-6 p-8 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500">
-                <svg class="w-8 h-8 mx-auto text-slate-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                Belum ada antrean baru. Modul pembuatan shipment akan dikerjakan pada Milestone P9.
+            <div class="mt-6 p-6 border border-slate-800 rounded-xl bg-slate-950/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-slate-200">Manajemen Pengiriman Kargo & Manifes</p>
+                        <p class="text-slate-400 mt-0.5">Pantau status perjalanan, perbarui jadwal ETA, serta tangani exception muatan.</p>
+                    </div>
+                </div>
+                <a href="{{ route('operator.shipments') }}" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 shadow-md shadow-cyan-600/20 transition whitespace-nowrap">
+                    Buka Workspace Shipments &rarr;
+                </a>
             </div>
         </div>
 

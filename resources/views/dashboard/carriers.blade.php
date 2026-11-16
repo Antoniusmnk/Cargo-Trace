@@ -70,6 +70,10 @@
                            class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
                             &larr; Kembali ke Dashboard
                         </a>
+                        <a href="{{ Auth::user()->isAdmin() ? route('admin.shipments') : route('operator.shipments') }}" 
+                           class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                            Data Shipments
+                        </a>
                         <span class="px-3 py-1.5 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30">
                             Master Carriers
                         </span>

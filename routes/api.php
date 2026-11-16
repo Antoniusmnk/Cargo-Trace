@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Auth\ApiAuthController;
 use App\Http\Controllers\Api\CarrierApiController;
 use App\Http\Controllers\Api\LocationApiController;
+use App\Http\Controllers\Api\ShipmentApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,4 +33,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Master Data: Locations
     Route::get('/locations', [LocationApiController::class, 'index']);
     Route::post('/locations', [LocationApiController::class, 'store']);
+
+    // Shipments Resource
+    Route::get('/shipments', [ShipmentApiController::class, 'index']);
+    Route::post('/shipments', [ShipmentApiController::class, 'store']);
+    Route::get('/shipments/{id}', [ShipmentApiController::class, 'show']);
+    Route::put('/shipments/{id}', [ShipmentApiController::class, 'update']);
+    Route::patch('/shipments/{id}', [ShipmentApiController::class, 'update']);
+    Route::delete('/shipments/{id}', [ShipmentApiController::class, 'destroy']);
 });

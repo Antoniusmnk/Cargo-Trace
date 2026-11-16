@@ -69,6 +69,9 @@
                     </span>
 
                     <div class="hidden lg:flex items-center gap-2 ml-2 text-xs font-semibold">
+                        <a href="{{ route('admin.shipments') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                            Data Shipments
+                        </a>
                         <a href="{{ route('admin.carriers') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
                             Master Carriers
                         </a>
@@ -198,8 +201,15 @@
 
         <!-- Global Oversight Summary Placeholder -->
         <div class="mt-8 p-6 rounded-2xl bg-slate-900/50 border border-slate-800">
-            <h2 class="text-base font-bold text-white">Ringkasan Visibilitas Global Platform</h2>
-            <p class="mt-1 text-xs text-slate-400">Administrator memiliki akses pengawasan menyeluruh terhadap seluruh pengiriman lintas operator dan pelanggan.</p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-base font-bold text-white">Ringkasan Visibilitas Global Platform</h2>
+                    <p class="mt-1 text-xs text-slate-400">Administrator memiliki akses pengawasan menyeluruh terhadap seluruh pengiriman lintas operator dan pelanggan.</p>
+                </div>
+                <a href="{{ route('admin.shipments') }}" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 transition">
+                    <span>Lihat Seluruh Shipments &rarr;</span>
+                </a>
+            </div>
             
             <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                 <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">

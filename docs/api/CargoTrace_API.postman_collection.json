@@ -1,0 +1,397 @@
+{
+	"info": {
+		"_postman_id": "cargotrace-api-v2-full",
+		"name": "CargoTrace - Platform API (Milestones P8 & P9)",
+		"description": "Full REST API Collection for CargoTrace Platform: Authentication (Sanctum), Master Data (Carriers & Locations), and Shipment Management CRUD.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Authentication",
+			"description": "Public and protected authentication endpoints using Laravel Sanctum.",
+			"item": [
+				{
+					"name": "Register Customer (Self-Service)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    if (json.data && json.data.token) {",
+									"        pm.environment.set(\"auth_token\", json.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"PT Samudera Pratama\",\n    \"email\": \"samudera@example.test\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });",
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@cargotrace.com\",\n    \"password\": \"password\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login Operator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });",
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"operator@cargotrace.com\",\n    \"password\": \"password\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });",
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"customer@cargotrace.com\",\n    \"password\": \"password\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Authenticated User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user",
+							"host": ["{{base_url}}"],
+							"path": ["api", "user"]
+						}
+					}
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"auth_token\", \"\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "logout"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Master Data",
+			"description": "Endpoints for Carriers and Locations Master Data.",
+			"item": [
+				{
+					"name": "List Carriers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/carriers",
+							"host": ["{{base_url}}"],
+							"path": ["api", "carriers"]
+						}
+					}
+				},
+				{
+					"name": "Create Carrier (Admin/Operator)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"HMM\",\n    \"name\": \"Hyundai Merchant Marine\",\n    \"contact_email\": \"support@hmm21.com\",\n    \"phone\": \"+82 2 3706 5114\",\n    \"status\": \"active\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/carriers",
+							"host": ["{{base_url}}"],
+							"path": ["api", "carriers"]
+						}
+					}
+				},
+				{
+					"name": "List Locations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/locations",
+							"host": ["{{base_url}}"],
+							"path": ["api", "locations"]
+						}
+					}
+				},
+				{
+					"name": "Create Location (Admin/Operator)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"KRPUS\",\n    \"name\": \"Port of Busan\",\n    \"type\": \"port\",\n    \"city\": \"Busan\",\n    \"country\": \"South Korea\",\n    \"latitude\": 35.1028000,\n    \"longitude\": 129.0403000\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/locations",
+							"host": ["{{base_url}}"],
+							"path": ["api", "locations"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Shipments",
+			"description": "Endpoints for Shipment CRUD, Manifest Items, and Filtering.",
+			"item": [
+				{
+					"name": "List Shipments (Paginated + Filtered)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shipments?page=1&per_page=10&status=CREATED",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments"],
+							"query": [
+								{"key": "page", "value": "1"},
+								{"key": "per_page", "value": "10"},
+								{"key": "status", "value": "CREATED"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Shipment with Items (Operator/Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    if (json.data && json.data.id) {",
+									"        pm.environment.set(\"shipment_id\", json.data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customer_id\": 3,\n    \"carrier_id\": 1,\n    \"origin_id\": 1,\n    \"destination_id\": 3,\n    \"cargo_type\": \"Medical Supplies & Diagnostics\",\n    \"expected_departure\": \"2026-12-01 10:00:00\",\n    \"expected_arrival\": \"2026-12-06 18:00:00\",\n    \"estimated_arrival\": \"2026-12-06 18:00:00\",\n    \"notes\": \"Urgent hospital diagnostic cargo\",\n    \"items\": [\n        {\n            \"item_name\": \"Immunoassay Analyzers\",\n            \"quantity\": 25,\n            \"weight_kg\": 1250.00,\n            \"volume_cbm\": 8.50,\n            \"package_type\": \"Crate\",\n            \"hs_code\": \"9027.80\"\n        },\n        {\n            \"item_name\": \"Reagent Kits Pack\",\n            \"quantity\": 100,\n            \"weight_kg\": 400.00,\n            \"volume_cbm\": 3.20,\n            \"package_type\": \"Carton\",\n            \"hs_code\": \"3822.00\"\n        }\n    ]\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments"]
+						}
+					}
+				},
+				{
+					"name": "Get Shipment Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shipments/{{shipment_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "{{shipment_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Shipment (Operator/Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cargo_type\": \"Medical Supplies & Diagnostics (High Priority)\",\n    \"notes\": \"Updated: priority customs clearance required upon arrival.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/{{shipment_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "{{shipment_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Shipment (Operator/Admin - CREATED or BOOKED only)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shipments/{{shipment_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "{{shipment_id}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

@@ -67,6 +67,12 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         Customer Portal
                     </span>
+
+                    <div class="hidden md:flex items-center gap-2 ml-2 text-xs font-semibold">
+                        <a href="{{ route('customer.shipments') }}" class="px-3 py-1.5 rounded-lg text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition">
+                            Daftar Kargo Saya &rarr;
+                        </a>
+                    </div>
                 </div>
 
                 <!-- User actions -->
@@ -139,8 +145,11 @@
                 <p class="mt-2 text-xs text-slate-400 leading-relaxed">
                     Daftar pengiriman milik akun Anda dengan isolasi data yang aman (hanya dapat melihat shipment milik sendiri).
                 </p>
-                <div class="mt-4 pt-4 border-t border-slate-800 text-xs text-emerald-300 font-medium">
-                    Owner-Scoped Queries (P9)
+                <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                    <span class="text-emerald-300 font-medium">Owner-Scoped Active</span>
+                    <a href="{{ route('customer.shipments') }}" class="text-emerald-400 hover:text-emerald-300 font-semibold transition">
+                        Buka Daftar Kargo &rarr;
+                    </a>
                 </div>
             </div>
 

@@ -49,6 +49,14 @@ Route::prefix('admin')
             return view('dashboard.admin');
         })->name('dashboard');
 
+        Route::get('/shipments', function () {
+            return view('dashboard.shipments', [
+                'shipments' => \App\Models\Shipment::with(['carrier', 'origin', 'destination', 'customer', 'items'])
+                    ->latest()
+                    ->paginate(10),
+            ]);
+        })->name('shipments');
+
         Route::get('/carriers', function () {
             return view('dashboard.carriers', [
                 'carriers' => \App\Models\Carrier::orderBy('name')->get(),
@@ -71,6 +79,14 @@ Route::prefix('operator')
             return view('dashboard.operator');
         })->name('dashboard');
 
+        Route::get('/shipments', function () {
+            return view('dashboard.shipments', [
+                'shipments' => \App\Models\Shipment::with(['carrier', 'origin', 'destination', 'customer', 'items'])
+                    ->latest()
+                    ->paginate(10),
+            ]);
+        })->name('shipments');
+
         Route::get('/carriers', function () {
             return view('dashboard.carriers', [
                 'carriers' => \App\Models\Carrier::orderBy('name')->get(),
@@ -92,4 +108,14 @@ Route::prefix('customer')
         Route::get('/dashboard', function () {
             return view('dashboard.customer');
         })->name('dashboard');
+
+        Route::get('/shipments', function () {
+            return view('dashboard.shipments', [
+                'shipments' => auth()->user()
+                    ->shipments()
+                    ->with(['carrier', 'origin', 'destination', 'items'])
+                    ->latest()
+                    ->paginate(10),
+            ]);
+        })->name('shipments');
     });
