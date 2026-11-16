@@ -26,3 +26,4 @@ Thumbs.db
 # Internal Project Guidelines & Workspace Config
 /PROJECT_SPEC.md
 /.gemini
+/.matplotlib_cache
