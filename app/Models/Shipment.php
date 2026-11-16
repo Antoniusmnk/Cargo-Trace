@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Shipment extends Model
 {
@@ -106,6 +107,22 @@ class Shipment extends Model
     public function items(): HasMany
     {
         return $this->hasMany(ShipmentItem::class);
+    }
+
+    /**
+     * Get the tracking events timeline for the shipment.
+     */
+    public function trackingEvents(): HasMany
+    {
+        return $this->hasMany(TrackingEvent::class)->orderBy('event_time', 'asc');
+    }
+
+    /**
+     * Get the latest tracking event for the shipment.
+     */
+    public function latestTrackingEvent(): HasOne
+    {
+        return $this->hasOne(TrackingEvent::class)->latestOfMany('event_time');
     }
 
     /**
