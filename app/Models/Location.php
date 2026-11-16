@@ -44,7 +44,7 @@ class Location extends Model
      */
     public function originShipments(): HasMany
     {
-        return $this->hasMany(Shipment::class, 'origin_location_id');
+        return $this->hasMany(Shipment::class, 'origin_id');
     }
 
     /**
@@ -52,6 +52,6 @@ class Location extends Model
      */
     public function destinationShipments(): HasMany
     {
-        return $this->hasMany(Shipment::class, 'destination_location_id');
+        return $this->hasMany(Shipment::class, 'destination_id');
     }
 }
