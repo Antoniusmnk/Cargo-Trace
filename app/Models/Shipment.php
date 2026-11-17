@@ -148,4 +148,30 @@ class Shipment extends Model
     {
         return $query->where('is_delayed', true);
     }
+
+    /**
+     * Get Tailwind CSS badge color classes based on delay severity.
+     */
+    public function getDelayBadgeColorAttribute(): string
+    {
+        return match ($this->delay_severity) {
+            'NONE' => 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+            'LOW' => 'bg-sky-500/10 text-sky-400 border-sky-500/30',
+            'MEDIUM' => 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+            'HIGH' => 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+            default => 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+        };
+    }
+
+    /**
+     * Get a human-readable delay summary status text.
+     */
+    public function getDelayStatusTextAttribute(): string
+    {
+        if (! $this->is_delayed || $this->delay_severity === 'NONE') {
+            return 'On Time';
+        }
+
+        return "Delayed (+{$this->delay_hours} hrs) [{$this->delay_severity}]";
+    }
 }
