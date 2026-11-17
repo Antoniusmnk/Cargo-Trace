@@ -91,6 +91,30 @@ Semua akun pengujian berikut terdaftar secara bawaan di database lokal melalui s
 | `GET` | `/api/shipments/{shipment}/tracking` | `Bearer Token` | Owner, `operator`, `admin` | Mengambil seluruh linimasa riwayat status dan checkpoint kargo |
 | `POST` | `/api/shipments/{shipment}/tracking` | `Bearer Token` | `operator`, `admin` (Customer ditolak) | Mencatat checkpoint baru & memperbarui status shipment sesuai State Machine |
 
+### 4.5 Aturan State Machine Siklus Hidup Kargo (Linear Lifecycle)
+
+Platform CargoTrace menerapkan mesin status (*State Machine*) linier yang ketat untuk menjamin integritas data audit jejak pengiriman:
+
+```
+[ CREATED ] ──> [ BOOKED ] ──> [ PICKED_UP ] ──> [ IN_TRANSIT ] ──> [ DELIVERED ] (Terminal)
+                                                         │   ▲
+                                                         └───┘
+                                                (Checkpoint Pembaruan Waypoint)
+```
+
+1. **Urutan Wajib Linier:**
+   - `CREATED`: Manifes pengiriman kargo baru terdaftar di sistem.
+   - `BOOKED`: Slot kapal atau ruang muat telah dikonfirmasi oleh pihak pelayaran/carrier.
+   - `PICKED_UP`: Kontainer/kargo fisik telah dijemput dan disegel dari depo pengirim.
+   - `IN_TRANSIT`: Kapal pengangkut telah bertolak dari pelabuhan asal dan sedang berlayar.
+   - `DELIVERED`: Kargo tiba di pelabuhan tujuan, dibongkar, dan diserahterimakan kepada consignee.
+2. **Pengecualian Checkpoint Berulang (`IN_TRANSIT` &rarr; `IN_TRANSIT`):**
+   - Saat kargo berada dalam tahap `IN_TRANSIT`, operator diizinkan mencatat checkpoint koordinat maritim berulang kali (misal: titik lapor Selat Malaka, Terusan Suez, dll) tanpa mengubah status kargo.
+3. **Status Terminal Permanen (`DELIVERED`):**
+   - Status `DELIVERED` bersifat final. State machine menolak (*throws `InvalidStatusTransitionException`* &rarr; `HTTP 422`) setiap upaya memutar balik status (`DELIVERED` &rarr; `CREATED`), memperbarui waypoint, atau transisi apa pun.
+4. **Skenario Pengujian Sekuensial Postman:**
+   - Folder **"04. Tracking & Lifecycle"** pada koleksi Postman menyediakan 5 request sekuensial yang dapat dijalankan secara bertahap untuk memverifikasi transisi penuh dari `BOOKED` hingga penolakan `DELIVERED`.
+
 ---
 
 ## 5. Standar Format Respon JSON

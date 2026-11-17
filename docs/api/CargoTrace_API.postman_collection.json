@@ -414,7 +414,7 @@
 					}
 				},
 				{
-					"name": "Add Valid Tracking Checkpoint (Operator)",
+					"name": "1. Transition to BOOKED",
 					"event": [
 						{
 							"listen": "test",
@@ -422,6 +422,10 @@
 								"exec": [
 									"pm.test(\"Status code is 201 Created\", function () {",
 									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Shipment status updated to BOOKED\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.data.status).to.eql(\"BOOKED\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -437,7 +441,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"status\": \"BOOKED\",\n    \"event_time\": \"2026-11-17 14:00:00\",\n    \"location_id\": 1,\n    \"location_name\": \"Tanjung Priok Container Terminal, Jakarta\",\n    \"latitude\": -6.1018800,\n    \"longitude\": 106.8833800,\n    \"description\": \"Slot booking confirmed by carrier for export voyage.\"\n}",
+							"raw": "{\n    \"status\": \"BOOKED\",\n    \"event_time\": \"2026-11-17 10:00:00\",\n    \"location_id\": 1,\n    \"location_name\": \"Tanjung Priok Container Terminal, Jakarta\",\n    \"latitude\": -6.1018800,\n    \"longitude\": 106.8833800,\n    \"description\": \"Carrier slot booking confirmed for voyage.\"\n}",
 							"options": {"raw": {"language": "json"}}
 						},
 						"url": {
@@ -445,11 +449,128 @@
 							"host": ["{{base_url}}"],
 							"path": ["api", "shipments", "1", "tracking"]
 						},
-						"description": "Records the next valid lifecycle checkpoint in accordance with the state machine rules."
+						"description": "Lifecycle Step 1: Transition shipment status from CREATED to BOOKED."
 					}
 				},
 				{
-					"name": "Reject Invalid Status Transition (Negative Test)",
+					"name": "2. Transition to PICKED_UP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Shipment status updated to PICKED_UP\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.data.status).to.eql(\"PICKED_UP\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"PICKED_UP\",\n    \"event_time\": \"2026-11-17 14:00:00\",\n    \"location_id\": 1,\n    \"location_name\": \"Cakung Container Depot, Jakarta\",\n    \"description\": \"Empty container picked up, stuffed, and sealed with cargo.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/tracking",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "tracking"]
+						},
+						"description": "Lifecycle Step 2: Transition shipment status from BOOKED to PICKED_UP."
+					}
+				},
+				{
+					"name": "3. Transition to IN_TRANSIT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Shipment status updated to IN_TRANSIT\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.data.status).to.eql(\"IN_TRANSIT\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"IN_TRANSIT\",\n    \"event_time\": \"2026-11-18 08:00:00\",\n    \"location_id\": 1,\n    \"location_name\": \"Port of Tanjung Priok Berth 102\",\n    \"latitude\": -6.1018800,\n    \"longitude\": 106.8833800,\n    \"description\": \"Vessel loaded and departed from origin port. Voyage underway.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/tracking",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "tracking"]
+						},
+						"description": "Lifecycle Step 3: Transition shipment status from PICKED_UP to IN_TRANSIT."
+					}
+				},
+				{
+					"name": "4. Transition to DELIVERED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Shipment status updated to DELIVERED\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.data.status).to.eql(\"DELIVERED\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"DELIVERED\",\n    \"event_time\": \"2026-11-20 16:00:00\",\n    \"location_id\": 3,\n    \"location_name\": \"Port of Singapore Tanjong Pagar Terminal\",\n    \"latitude\": 1.2644000,\n    \"longitude\": 103.8222000,\n    \"description\": \"Vessel safely berthed. Container discharged and delivered to consignee.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/tracking",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "tracking"]
+						},
+						"description": "Lifecycle Step 4: Final transition from IN_TRANSIT to DELIVERED (Terminal Status)."
+					}
+				},
+				{
+					"name": "5. Reject Transition After DELIVERED (Negative Test)",
 					"event": [
 						{
 							"listen": "test",
@@ -458,10 +579,10 @@
 									"pm.test(\"Status code is 422 Unprocessable Content\", function () {",
 									"    pm.response.to.have.status(422);",
 									"});",
-									"pm.test(\"Error message indicates invalid transition\", function () {",
+									"pm.test(\"Error indicates terminal status violation\", function () {",
 									"    var json = pm.response.json();",
 									"    pm.expect(json.success).to.be.false;",
-									"    pm.expect(json.message).to.include(\"tidak valid\");",
+									"    pm.expect(json.message).to.include(\"DELIVERED bersifat terminal\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -477,7 +598,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"status\": \"DELIVERED\",\n    \"event_time\": \"2026-11-17 15:00:00\",\n    \"location_name\": \"Discharge Port Yard\",\n    \"description\": \"Attempting invalid jump from CREATED directly to DELIVERED.\"\n}",
+							"raw": "{\n    \"status\": \"IN_TRANSIT\",\n    \"event_time\": \"2026-11-21 10:00:00\",\n    \"location_name\": \"High Seas\",\n    \"description\": \"Illegal attempt to reopen a delivered shipment.\"\n}",
 							"options": {"raw": {"language": "json"}}
 						},
 						"url": {
@@ -485,7 +606,7 @@
 							"host": ["{{base_url}}"],
 							"path": ["api", "shipments", "1", "tracking"]
 						},
-						"description": "Tests state machine validation by attempting an invalid status jump (e.g. CREATED -> DELIVERED)."
+						"description": "Lifecycle Step 5: Negative test asserting that shipments with DELIVERED status cannot transition any further."
 					}
 				}
 			]
