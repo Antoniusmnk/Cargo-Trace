@@ -115,6 +115,16 @@ Platform CargoTrace menerapkan mesin status (*State Machine*) linier yang ketat 
 4. **Skenario Pengujian Sekuensial Postman:**
    - Folder **"04. Tracking & Lifecycle"** pada koleksi Postman menyediakan 5 request sekuensial yang dapat dijalankan secara bertahap untuk memverifikasi transisi penuh dari `BOOKED` hingga penolakan `DELIVERED`.
 
+### 4.6 Modul Exceptions & Delay Engine (Milestone P11)
+
+| Method | Endpoint | Proteksi (*Auth*) | Izin Akses (*Policy*) | Deskripsi |
+| :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/api/shipments/{shipment}/exceptions` | `Bearer Token` | Owner, `operator`, `admin` | Daftar kendala kargo spesifik berserta status SLA keterlambatan |
+| `POST` | `/api/shipments/{shipment}/exceptions` | `Bearer Token` | `operator`, `admin` | Melaporkan kendala kargo baru & memperhitungkan dampak jam delay ke ETA |
+| `GET` | `/api/exceptions` | `Bearer Token` | `operator`, `admin` | Ringkasan kendala operasional global (filter: status, severity, exception_type) |
+| `PATCH` | `/api/exceptions/{exception}` | `Bearer Token` | `operator`, `admin` | Mengubah status kendala (`OPEN` &rarr; `INVESTIGATING` &rarr; `RESOLVED`) |
+| `POST` | `/api/shipments/{shipment}/recalculate-eta` | `Bearer Token` | `operator`, `admin` | Menghitung ulang SLA delay atau memperbarui jadwal ETA operasional |
+
 ---
 
 ## 5. Standar Format Respon JSON

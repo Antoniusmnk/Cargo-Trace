@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\ApiAuthController;
 use App\Http\Controllers\Api\CarrierApiController;
+use App\Http\Controllers\Api\ExceptionApiController;
 use App\Http\Controllers\Api\LocationApiController;
 use App\Http\Controllers\Api\ShipmentApiController;
 use App\Http\Controllers\Api\TrackingApiController;
@@ -46,4 +47,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tracking & Milestone Events
     Route::get('/shipments/{shipment}/tracking', [TrackingApiController::class, 'index'])->name('api.shipments.tracking.index');
     Route::post('/shipments/{shipment}/tracking', [TrackingApiController::class, 'store'])->name('api.shipments.tracking.store');
+
+    // Exceptions & Delay Management
+    Route::get('/shipments/{shipment}/exceptions', [ExceptionApiController::class, 'indexForShipment'])->name('api.shipments.exceptions.index');
+    Route::post('/shipments/{shipment}/exceptions', [ExceptionApiController::class, 'store'])->name('api.shipments.exceptions.store');
+    Route::get('/exceptions', [ExceptionApiController::class, 'indexAll'])->name('api.exceptions.index');
+    Route::patch('/exceptions/{exception}', [ExceptionApiController::class, 'update'])->name('api.exceptions.update');
+    Route::post('/shipments/{shipment}/recalculate-eta', [ExceptionApiController::class, 'recalculateEta'])->name('api.shipments.recalculate-eta');
 });

@@ -610,6 +610,208 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "05. Exceptions & Delay Engine",
+			"description": "Endpoints for Shipment Disruption Exceptions, Severity Management, and Dynamic ETA Recalculation.",
+			"item": [
+				{
+					"name": "1. Get Shipment Exceptions (Customer/Operator)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/exceptions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "exceptions"]
+						},
+						"description": "Retrieves all reported disruptions for a shipment, including current delay and severity metrics."
+					}
+				},
+				{
+					"name": "2. Report New Exception with Impact Hours (Operator)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    if (json.data && json.data.exception && json.data.exception.id) {",
+									"        pm.environment.set(\"exception_id\", json.data.exception.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"exception_type\": \"WEATHER_DELAY\",\n    \"severity\": \"MEDIUM\",\n    \"impact_hours\": 14,\n    \"description\": \"Tropical storm near South China Sea corridor causing vessel slow steaming.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/exceptions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "exceptions"]
+						},
+						"description": "Records a disruption exception and automatically adds impact_hours to shipment estimated arrival, recalculating delay severity."
+					}
+				},
+				{
+					"name": "3. Update Exception Status to RESOLVED (Operator)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Exception status updated to RESOLVED\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.data.status).to.eql(\"RESOLVED\");",
+									"    pm.expect(json.data.resolved_at).to.not.be.null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"RESOLVED\",\n    \"resolution_notes\": \"Weather cleared. Vessel resumed cruising speed of 18 knots.\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/exceptions/{{exception_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "exceptions", "{{exception_id}}"]
+						},
+						"description": "Resolves an active disruption exception, recording resolution notes and timestamp."
+					}
+				},
+				{
+					"name": "4. Recalculate Shipment ETA (Operator)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"new_estimated_arrival\": \"2026-11-21 18:00:00\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/recalculate-eta",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "recalculate-eta"]
+						},
+						"description": "Recalculates SLA delay metrics either with an explicit new ETA or based on current database state."
+					}
+				},
+				{
+					"name": "5. Negative Test: Customer Cannot Report Exception (403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403 Forbidden\", function () { pm.response.to.have.status(403); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"exception_type\": \"CUSTOMS_HOLD\",\n    \"severity\": \"HIGH\",\n    \"description\": \"Unauthorized customer reporting attempt\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shipments/1/exceptions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "shipments", "1", "exceptions"]
+						},
+						"description": "Asserts that role customer is strictly forbidden from reporting exceptions."
+					}
+				},
+				{
+					"name": "6. Negative Test: Cannot Mutate Resolved Exception (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422 Unprocessable Content\", function () { pm.response.to.have.status(422); });",
+									"pm.test(\"Message indicates resolved is terminal\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.message).to.include(\"RESOLVED bersifat final\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{"key": "Accept", "value": "application/json", "type": "text"},
+							{"key": "Content-Type", "value": "application/json", "type": "text"},
+							{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"OPEN\"\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/exceptions/3",
+							"host": ["{{base_url}}"],
+							"path": ["api", "exceptions", "3"]
+						},
+						"description": "Asserts that an exception that has been resolved cannot be reopened."
+					}
+				}
+			]
 		}
 	]
 }
