@@ -117,6 +117,37 @@
             </div>
         @endif
 
+        <!-- Delay Alert Banner -->
+        @if ($shipment->is_delayed)
+            @php
+                $delayBannerColor = match($shipment->delay_severity) {
+                    'HIGH' => 'bg-rose-500/15 border-rose-500/40 text-rose-300',
+                    'MEDIUM' => 'bg-amber-500/15 border-amber-500/40 text-amber-300',
+                    default => 'bg-sky-500/15 border-sky-500/40 text-sky-300',
+                };
+            @endphp
+            <div class="mb-6 p-4 sm:p-5 rounded-2xl border {{ $delayBannerColor }} flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg backdrop-blur-md">
+                <div class="flex items-start sm:items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-slate-950/60 border border-current flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-sm font-extrabold tracking-tight">⚠️ Peringatan Keterlambatan: Kargo mengalami penundaan {{ $shipment->delay_hours }} jam dari jadwal SLA awal.</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border uppercase {{ $shipment->delay_badge_color }}">
+                                {{ $shipment->delay_severity }} SEVERITY
+                            </span>
+                        </div>
+                        <p class="text-xs opacity-90 mt-1">
+                            Estimasi waktu tiba (ETA) disesuaikan menjadi <strong>{{ \Carbon\Carbon::parse($shipment->estimated_arrival ?? $shipment->expected_arrival)->format('d M Y, H:i') }}</strong> (Jadwal SLA awal: {{ \Carbon\Carbon::parse($shipment->expected_arrival)->format('d M Y, H:i') }}).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Header Overview Card -->
         <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-xl backdrop-blur-md mb-8">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-800">
@@ -372,6 +403,109 @@
                         @endforeach
                     </div>
                 @endif
+
+                <!-- Section: Riwayat Kendala & Gangguan (Shipment Exceptions) -->
+                <div class="mt-8 rounded-2xl bg-slate-900/90 border border-slate-800 p-6 shadow-xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800 mb-6">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                                <h3 class="text-base font-extrabold text-white">Riwayat Kendala & Gangguan</h3>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-0.5">Catatan hambatan operasional, kepabeanan, atau kendala cuaca yang mempengaruhi SLA kargo ini.</p>
+                        </div>
+
+                        @if (Auth::user()->isAdmin() || Auth::user()->isOperator())
+                            <button type="button" onclick="openReportExceptionModal()"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-600/30 transition cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Laporkan Kendala Baru</span>
+                            </button>
+                        @endif
+                    </div>
+
+                    @if ($shipment->exceptions->isEmpty())
+                        <div class="p-6 rounded-xl bg-slate-950/50 border border-slate-800/80 text-center">
+                            <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto mb-2">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <p class="text-xs font-semibold text-slate-300">Tidak Ada Kendala Operasional</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Pengiriman kargo ini berjalan lancar tanpa kendala atau deviasi rute yang dilaporkan.</p>
+                        </div>
+                    @else
+                        <div class="space-y-4">
+                            @foreach ($shipment->exceptions as $exc)
+                                @php
+                                    $excSeverityClass = match($exc->severity) {
+                                        'HIGH' => 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+                                        'MEDIUM' => 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                                        default => 'bg-sky-500/10 text-sky-400 border-sky-500/30',
+                                    };
+                                    $excStatusClass = match($exc->status) {
+                                        'RESOLVED' => 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                                        'INVESTIGATING' => 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                                        default => 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+                                    };
+                                @endphp
+                                <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800/80">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="font-mono font-bold text-slate-200 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                                                {{ $exc->exception_type }}
+                                            </span>
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $excSeverityClass }}">
+                                                {{ $exc->severity }}
+                                            </span>
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $excStatusClass }}">
+                                                {{ $exc->status }}
+                                            </span>
+                                            @if ($exc->impact_hours > 0)
+                                                <span class="font-mono text-amber-400 text-[11px] font-semibold">
+                                                    +{{ $exc->impact_hours }} jam dampak
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <div class="text-[11px] text-slate-400">
+                                            Terdeteksi: {{ \Carbon\Carbon::parse($exc->detected_at)->format('d M Y, H:i') }}
+                                        </div>
+                                    </div>
+
+                                    <p class="text-xs text-slate-300 mt-2.5 leading-relaxed">
+                                        {{ $exc->description }}
+                                    </p>
+
+                                    @if ($exc->resolution_notes)
+                                        <div class="mt-3 p-3 rounded-lg bg-emerald-950/30 border border-emerald-800/40 text-emerald-300 text-xs">
+                                            <div class="font-bold flex items-center gap-1 text-emerald-400">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span>Solusi / Resolusi ({{ \Carbon\Carbon::parse($exc->resolved_at)->format('d M Y, H:i') }}):</span>
+                                            </div>
+                                            <p class="mt-1 text-slate-300 leading-snug">{{ $exc->resolution_notes }}</p>
+                                        </div>
+                                    @endif
+
+                                    <div class="mt-3 pt-2.5 border-t border-slate-900 flex items-center justify-between text-[11px] text-slate-500">
+                                        <span>Dilaporkan oleh: <strong class="text-slate-400">{{ $exc->reporter?->name ?? 'System' }}</strong></span>
+                                        @if ($exc->status !== 'RESOLVED' && (Auth::user()->isAdmin() || Auth::user()->isOperator()))
+                                            <button type="button" 
+                                                    onclick="openResolveTimelineModal('{{ $exc->id }}', '{{ $exc->exception_type }}')"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 transition cursor-pointer">
+                                                <span>Selesaikan Kendala</span>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
             </div>
 
             <!-- Right Column: Sidebar (Cargo Items & Checkpoint Form) (4-5 Cols) -->
@@ -552,12 +686,149 @@
 
     </main>
 
+    @if(Auth::user()->isAdmin() || Auth::user()->isOperator())
+        {{-- Modal 1: Laporkan Kendala Baru (Report Exception Modal) --}}
+        <div id="reportExceptionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+            <div class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-2xl">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-bold text-white">Laporkan Kendala / Gangguan Kargo</h3>
+                    </div>
+                    <button type="button" onclick="closeReportExceptionModal()" class="text-slate-400 hover:text-white transition">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="POST" action="{{ route('shipments.exceptions.store', $shipment) }}" class="mt-4 space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">
+                            Jenis Kendala <span class="text-rose-400">*</span>
+                        </label>
+                        <select name="exception_type" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500 transition">
+                            <option value="CUSTOMS_HOLD">CUSTOMS_HOLD (Tertahan Kepabeanan / Cukai)</option>
+                            <option value="WEATHER_DELAY">WEATHER_DELAY (Cuaca Ekstrem / Gelombang Tinggi)</option>
+                            <option value="PORT_CONGESTION">PORT_CONGESTION (Kepadatan Antrean Pelabuhan)</option>
+                            <option value="DAMAGED">DAMAGED (Kerusakan Fisik Kontainer / Muatan)</option>
+                            <option value="MISROUTED">MISROUTED (Penyimpangan Jalur Pelayaran)</option>
+                            <option value="DOCUMENTATION_ISSUE">DOCUMENTATION_ISSUE (Ketidaksesuaian Dokumen)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">
+                                Tingkat Keparahan <span class="text-rose-400">*</span>
+                            </label>
+                            <select name="severity" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500 transition">
+                                <option value="LOW">LOW (Rendah &le; 6 Jam)</option>
+                                <option value="MEDIUM" selected>MEDIUM (Sedang 6-24 Jam)</option>
+                                <option value="HIGH">HIGH (Tinggi &gt; 24 Jam)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">
+                                Estimasi Dampak Jam (Hours)
+                            </label>
+                            <input type="number" name="impact_hours" min="0" value="0"
+                                   placeholder="Contoh: 12"
+                                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">
+                            Deskripsi Rinci Kendala <span class="text-rose-400">*</span>
+                        </label>
+                        <textarea name="description" rows="3" required
+                                  placeholder="Jelaskan detail kendala, lokasi terjadinya, dan tindakan awal..."
+                                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 transition"></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" onclick="closeReportExceptionModal()"
+                                class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 transition">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-600/30 transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span>Laporkan & Sesuaikan ETA</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal 2: Selesaikan Kendala (Resolve Exception Modal) -->
+        <div id="resolveTimelineModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+            <div class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-2xl">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-bold text-white">Selesaikan Kendala Kargo</h3>
+                    </div>
+                    <button type="button" onclick="closeResolveTimelineModal()" class="text-slate-400 hover:text-white transition">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="resolveTimelineForm" method="POST" action="" class="mt-4 space-y-4">
+                    @csrf
+                    <div class="text-xs text-slate-300">
+                        Menyelesaikan kendala <strong id="modalTimelineExcType" class="text-rose-400"></strong> pada kargo ini.
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">
+                            Catatan Penyelesaian & Solusi <span class="text-rose-400">*</span>
+                        </label>
+                        <textarea name="resolution_notes" rows="4" required
+                                  placeholder="Tuliskan tindakan korektif atau hasil verifikasi yang menyelesaikan kendala ini..."
+                                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" onclick="closeResolveTimelineModal()"
+                                class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 transition">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/30 transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Konfirmasi Selesai</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    </main>
+
     <!-- Footer -->
     <footer class="relative z-10 border-t border-slate-900 bg-slate-950/80 py-4 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
             <p>&copy; {{ date('Y') }} CargoTrace Global Logistics. Seluruh hak cipta dilindungi.</p>
             <div class="flex items-center gap-4 text-slate-400">
-                <span>Milestone P10.3: Visual Timeline & Tracking UI</span>
+                <span>Milestone P11.4: Visual Timeline & Exception Management UI</span>
             </div>
         </div>
     </footer>
@@ -575,6 +846,27 @@
                 if (lon) document.getElementById('longitude').value = lon;
             }
         });
+
+        function openReportExceptionModal() {
+            document.getElementById('reportExceptionModal')?.classList.remove('hidden');
+        }
+
+        function closeReportExceptionModal() {
+            document.getElementById('reportExceptionModal')?.classList.add('hidden');
+        }
+
+        function openResolveTimelineModal(id, excType) {
+            const form = document.getElementById('resolveTimelineForm');
+            if (form) {
+                form.action = `/exceptions/${id}/resolve`;
+                document.getElementById('modalTimelineExcType').textContent = excType;
+                document.getElementById('resolveTimelineModal')?.classList.remove('hidden');
+            }
+        }
+
+        function closeResolveTimelineModal() {
+            document.getElementById('resolveTimelineModal')?.classList.add('hidden');
+        }
     </script>
 </body>
 </html>

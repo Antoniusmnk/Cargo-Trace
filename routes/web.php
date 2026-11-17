@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Web\ShipmentExceptionWebController;
 use App\Http\Controllers\Web\ShipmentTrackingWebController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,13 @@ Route::middleware('auth')->group(function () {
     // Visual Interactive Timeline & Tracking Checkpoints
     Route::get('/shipments/{shipment}/tracking', [ShipmentTrackingWebController::class, 'show'])->name('shipments.tracking.show');
     Route::post('/shipments/{shipment}/tracking/checkpoints', [ShipmentTrackingWebController::class, 'addCheckpoint'])->name('shipments.tracking.checkpoint.store');
+
+    // Exception Center & Disruption Management (Operator & Admin)
+    Route::middleware('role:operator,admin')->group(function () {
+        Route::get('/exceptions', [ShipmentExceptionWebController::class, 'index'])->name('exceptions.index');
+        Route::post('/shipments/{shipment}/exceptions', [ShipmentExceptionWebController::class, 'store'])->name('shipments.exceptions.store');
+        Route::post('/exceptions/{exception}/resolve', [ShipmentExceptionWebController::class, 'resolve'])->name('exceptions.resolve');
+    });
 });
 
 // Admin Route Group

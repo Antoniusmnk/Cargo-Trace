@@ -78,6 +78,9 @@
                         <a href="{{ route('operator.locations') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
                             Master Locations
                         </a>
+                        <a href="{{ route('exceptions.index') }}" class="px-3 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">
+                            Exception Center
+                        </a>
                     </div>
                 </div>
 

@@ -36,6 +36,7 @@ class ShipmentTrackingWebController extends Controller
             'items',
             'trackingEvents.creator',
             'trackingEvents.location',
+            'exceptions.reporter',
         ]);
 
         $timeline = $this->trackingService->getShipmentTimeline($shipment);
