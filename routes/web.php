@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Web\ShipmentTrackingWebController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,6 +39,10 @@ Route::middleware('auth')->group(function () {
             default => redirect()->route('customer.dashboard'),
         };
     })->name('dashboard');
+
+    // Visual Interactive Timeline & Tracking Checkpoints
+    Route::get('/shipments/{shipment}/tracking', [ShipmentTrackingWebController::class, 'show'])->name('shipments.tracking.show');
+    Route::post('/shipments/{shipment}/tracking/checkpoints', [ShipmentTrackingWebController::class, 'addCheckpoint'])->name('shipments.tracking.checkpoint.store');
 });
 
 // Admin Route Group
