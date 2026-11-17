@@ -126,6 +126,22 @@ class Shipment extends Model
     }
 
     /**
+     * Get all recorded disruption exceptions for the shipment.
+     */
+    public function exceptions(): HasMany
+    {
+        return $this->hasMany(ShipmentException::class)->latest('detected_at');
+    }
+
+    /**
+     * Get active unresolved exceptions (OPEN or INVESTIGATING).
+     */
+    public function openExceptions(): HasMany
+    {
+        return $this->hasMany(ShipmentException::class)->whereIn('status', ['OPEN', 'INVESTIGATING']);
+    }
+
+    /**
      * Scope a query to only include shipments for a given customer.
      */
     public function scopeForCustomer(Builder $query, int|string $userId): Builder
